@@ -63,6 +63,10 @@ def get_articles() -> list:
     ]))
 
 
-def get_and_save_articles_as_json(path):
+def get_and_save_articles_as_json(path) -> list:
+    articles = get_articles()
+
     with open(path, 'w') as out:
-        json.dump(get_articles(), out)
+        json.dump(articles, out)
+
+    return articles
