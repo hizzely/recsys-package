@@ -16,6 +16,11 @@ def select_random_article_ids(article_ids: list) -> set:
 
 def generate_interactions(article_ids: list, user_count: int) -> list:
     interactions = []
+    weights = {
+        'REACT': 1,
+        'COMMENT': 2,
+        'SHARE': 3
+    }
 
     for user_id in range(1, user_count + 1):
         for article_id in select_random_article_ids(article_ids):
@@ -23,7 +28,8 @@ def generate_interactions(article_ids: list, user_count: int) -> list:
                 interactions.append({
                     'user_id': user_id,
                     'article_id': article_id,
-                    'event': event
+                    'event': event,
+                    'weight': weights[event]
                 })
 
     return interactions
