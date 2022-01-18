@@ -49,11 +49,6 @@ interactions_train = interactions_train.set_index('user_id')
 interactions_test = interactions_test.set_index('user_id')
 
 
-# TODO: Remove this unused function
-def get_articles_interacted(user_id, interactions: DataFrame) -> set:
-    return set(interactions.loc[user_id]['article_id'])
-
-
 #################################################
 # BUILD THE RECOMMENDER SYSTEM
 #################################################
@@ -91,8 +86,7 @@ def build_users_profiles(tfidf_vectors: csr_matrix, articles: DataFrame, interac
 
         # get articles profiles (the vectors)
         article_vectors = []
-        # TODO: wrap in set
-        for article_id in user_interactions['article_id']:
+        for article_id in set(user_interactions['article_id']):
             # get the profile from generated vectors
             article_index = articles[articles['id'] == article_id].index.values[0]
             # collect
