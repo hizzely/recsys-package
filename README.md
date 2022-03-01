@@ -19,14 +19,53 @@ If you wish to use this, please make sure that:
   - article_id: int
   - event: string
   - weight: int
-
+  
 ## Installation
 
-TBA
+### From cloned repository (local src)
+```shell
+$ pip install -e <path-to-cloned-repo-dir>
+```
 
-## Usage
+## Usage Example
+```python
+import pandas
+from rscb import RecommenderEngine
 
-TBA
+# Load articles and interactions data as DataFrame object
+articles: pandas.DataFrame = pandas.read_json('articles.json')
+interactions_train: pandas.DataFrame = pandas.read_json('interactions_train.json')
+
+# Instantiate the engine, feed your data, and begin the training
+engine = RecommenderEngine().load(articles, interactions_train).train()
+
+while True:
+    # Ask for User ID
+    user_id = int(input('User ID: '))
+    
+    # Get list of top-10 recommendation for them
+    rec_articles = engine.recommend(user_id, top_n=10)
+    print(rec_articles)
+    
+    # Get list of 10 most relevant tokens for them
+    rec_tokens = engine.recommend_tokens(user_id, top_n=10)
+    print(rec_tokens)
+```
+
+## Development
+### Build the package as distributable
+- On Windows
+```shell
+$ pip install --upgrade build
+$ py -m build
+```
+- On Linux or Mac
+```shell
+$ python3 -m pip install --upgrade build
+$ python3 -m build
+```
+More on the [documentation](https://packaging.python.org/en/latest/tutorials/packaging-projects/#generating-distribution-archives).
+
 
 ## License
 
