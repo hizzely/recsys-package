@@ -1,13 +1,12 @@
 import random
 from pandas import DataFrame
-from scipy.sparse import vstack
-
-from recommender import RecommenderEngine
-from typing import Set
+from recommender_engine import RecommenderEngine
 
 
 # interactions, interaction train and test should be indexed with user_id
-def evaluate_old(interactions, interaction_train, interaction_test, engine: RecommenderEngine):
+def recall(interactions: DataFrame, interaction_train: DataFrame, interaction_test: DataFrame,
+           trained_engine: RecommenderEngine) -> DataFrame:
+    """Perform evaluation using Recall metric"""
     result = []
 
     # for each user id in test set
@@ -15,7 +14,7 @@ def evaluate_old(interactions, interaction_train, interaction_test, engine: Reco
         # get top-N recommendation for this user
         # but exclude article ids that belong to train set
         exclude_list = set(interaction_train.loc[user_id]['article_id'])
-        recommendation_result = engine.recommend(user_id, exclude_list)
+        recommendation_result = trained_engine.recommend(user_id, top_n=10, exclude_article_ids=exclude_list)
 
         top_5_hits = 0
         top_10_hits = 0
@@ -26,7 +25,7 @@ def evaluate_old(interactions, interaction_train, interaction_test, engine: Reco
         # get random sample of not interacted articles
         all_interacted_items = set(interactions.loc[user_id]['article_id'])
         not_interacted_items = set(interactions['article_id']) - all_interacted_items
-        article_samples: Set = set(random.sample(not_interacted_items, 5)) # 5 random articles
+        article_samples: set = set(random.sample(not_interacted_items, 5))  # 5 random articles
 
         # combine the samples with articles from test set
         find_articles = article_samples.union(article_ids_test)
@@ -55,10 +54,11 @@ def evaluate_old(interactions, interaction_train, interaction_test, engine: Reco
             "recall_10": recall_10,
         })
 
-    result = DataFrame(result).set_index('user_id', True)
+    return DataFrame(result).set_index('user_id', True)
 
 
-def evaluate_hitrate_loocv(articles, interaction_train: DataFrame):
+def hit_rate_loocv(articles: DataFrame, interaction_train: DataFrame) -> DataFrame:
+    """Perform evaluation using Hit rate with Leave-One-Out-Cross-Validation metric"""
 
     result = []
 
@@ -84,6 +84,4 @@ def evaluate_hitrate_loocv(articles, interaction_train: DataFrame):
             'is_top_10': keep_index in range(10)
         })
 
-    result = DataFrame(result).set_index('user_id', True)
-
-    pass
+    return DataFrame(result).set_index('user_id', True)

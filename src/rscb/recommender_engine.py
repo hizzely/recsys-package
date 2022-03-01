@@ -24,20 +24,20 @@ class RecommenderEngine:
 
         return self
 
-    def train(self, ):
+    def train(self):
         self._build_articles_profiles()
         self._build_users_profiles()
 
         return self
 
-    def recommend(self, user_id: int, exclude_article_ids=[]) -> DataFrame:
+    def recommend(self, user_id: int, top_n=10, exclude_article_ids=[]) -> DataFrame:
         similar_articles = self._get_similar_articles(user_id)
 
         similar_articles = similar_articles \
             .query('article_id not in @exclude_article_ids') \
             .reset_index(drop=True)
 
-        return similar_articles
+        return similar_articles[:top_n]
 
     def recommend_tokens(self, user_id: int, top_n=100) -> DataFrame:
         result = zip(self.articles_features, self.users_profiles[user_id].flatten().tolist())
