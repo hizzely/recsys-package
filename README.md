@@ -17,10 +17,11 @@ If you wish to use this, please make sure that:
 - Your **interactions** data is imported as [DataFrame](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html) object and consists of, in no particular order:
   - user_id: int [[index]](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.set_index.html)
   - article_id: int
-  - event: string
   - weight: int
   
 ## Installation
+### From PyPI
+TBD
 
 ### From cloned repository (local src)
 ```shell
