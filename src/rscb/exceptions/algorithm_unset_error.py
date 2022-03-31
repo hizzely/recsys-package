@@ -1,0 +1,2 @@
+class AlgorithmUnsetError(Exception):
+    pass
