@@ -1,10 +1,12 @@
 import random
 from pandas import DataFrame
-from recommender_engine import RecommenderEngine
+from . import RecommenderEngine
 
 
 # interactions, interaction train and test should be indexed with user_id
-def recall(interactions: DataFrame, interaction_train: DataFrame, interaction_test: DataFrame,
+def recall(interactions: DataFrame,
+           interaction_train: DataFrame,
+           interaction_test: DataFrame,
            trained_engine: RecommenderEngine) -> DataFrame:
     """Perform evaluation using Recall metric"""
     result = []
@@ -13,8 +15,8 @@ def recall(interactions: DataFrame, interaction_train: DataFrame, interaction_te
     for user_id in interaction_test.index.unique().values:
         # get top-N recommendation for this user
         # but exclude article ids that belong to train set
-        exclude_list = set(interaction_train.loc[user_id]['article_id'])
-        recommendation_result = trained_engine.recommend(user_id, top_n=10, exclude_article_ids=exclude_list)
+        exclude_list = list(set(interaction_train.loc[user_id]['article_id']))
+        recommendation_result = trained_engine.get_recommendation(user_id, top_n=10, exclude=exclude_list)
 
         top_5_hits = 0
         top_10_hits = 0
@@ -33,14 +35,13 @@ def recall(interactions: DataFrame, interaction_train: DataFrame, interaction_te
         # for each interacted article ids for this user in test set
         for article_id in article_ids_test:
             # only include specific articles in the recommendation result
-            filtered_recommendation_result = recommendation_result \
-                .query('article_id in @find_articles')['article_id'] \
-                .values
+            recommendation_result = list(filter(lambda i: i[0] in find_articles, recommendation_result))
 
             # check top-n hits for items in filtered recommendation
-            index = next((i for i, c in enumerate(filtered_recommendation_result) if c == article_id), -1)
-            top_5_hits += int(index in range(5))  # convert true/false to numeric
-            top_10_hits += int(index in range(10))  # convert true/false to numeric
+            for idx, item in enumerate(recommendation_result):
+                if int(item[0]) is article_id:
+                    top_5_hits += int(idx in range(5))
+                    top_10_hits += int(idx in range(10))
 
         recall_5 = top_5_hits / len(article_ids_test)
         recall_10 = top_10_hits / len(article_ids_test)
@@ -57,31 +58,34 @@ def recall(interactions: DataFrame, interaction_train: DataFrame, interaction_te
     return DataFrame(result).set_index('user_id', True)
 
 
-def hit_rate_loocv(articles: DataFrame, interaction_train: DataFrame) -> DataFrame:
-    """Perform evaluation using Hit rate with Leave-One-Out-Cross-Validation metric"""
-
-    result = []
-
-    for user_id in interaction_train.index.unique():
-        # get interacted articles from this user
-        user_articles = interaction_train.loc[user_id]
-
-        # then keep one random article...
-        keep_article_id = random.choice(user_articles['article_id'].values)
-
-        # ...and exclude that from the set
-        user_articles = user_articles[user_articles['article_id'] != keep_article_id]
-
-        # feed that to the engine and get the recommendation list
-        recommendation_list: DataFrame = RecommenderEngine().load(articles, user_articles).train().recommend(user_id)
-
-        keep_index = recommendation_list.index[recommendation_list['article_id'] == keep_article_id].values[0]
-
-        result.append({
-            'user_id': user_id,
-            'keep_article_id': keep_article_id,
-            'keep_index': keep_index,
-            'is_top_10': keep_index in range(10)
-        })
-
-    return DataFrame(result).set_index('user_id', True)
+# def hit_rate_loocv(articles: DataFrame, interaction_train: DataFrame) -> DataFrame:
+#     """Perform evaluation using Hit rate with Leave-One-Out-Cross-Validation metric"""
+#
+#     result = []
+#
+#     for user_id in interaction_train.index.unique():
+#         # get interacted articles from this user
+#         user_articles = interaction_train.loc[user_id]
+#
+#         # then keep one random article...
+#         keep_article_id = random.choice(user_articles['article_id'].values)
+#
+#         # ...and exclude that from the set
+#         user_articles = user_articles[user_articles['article_id'] != keep_article_id]
+#
+#         # feed that to the engine and get the recommendation list
+#         recommendation_list = RecommenderEngine(articles, user_articles) \
+#             .set_algorithm(Tfidf) \
+#             .train() \
+#             .get_recommendation(user_id, top_n=10)
+#
+#         keep_index = recommendation_list.index[recommendation_list['article_id'] == keep_article_id].values[0]
+#
+#         result.append({
+#             'user_id': user_id,
+#             'keep_article_id': keep_article_id,
+#             'keep_index': keep_index,
+#             'is_top_10': keep_index in range(10)
+#         })
+#
+#     return DataFrame(result).set_index('user_id', True)
