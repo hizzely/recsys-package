@@ -1,20 +1,18 @@
-# RecSys Content-based Filtering Package
+# Recommender System Package
 
-This repository contains the code from Recommender System Content-based Filtering thesis.
-This package needs Python >= 3.9 to run.
+## Prerequisites
+### System Requirements
+The only requirements is Python >= 3.9. You can make use of Python Virtual Environment to quickly and easily switch between Python versions. 
 
-## Before Use
-
-Currently, this package has strong assumption on how your data are structured.
-If you wish to use this, please make sure that:
-
-- Your **articles** data is imported as [DataFrame](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html) object and consists of, in no particular order:
+### Data Structure
+This package currently requires you to structure your data as follows:
+- **articles** data is imported as [DataFrame](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html) object and consists of:
   - id: int [[index]](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.set_index.html)
   - title: string
   - author: string
   - categories: list[string]
   - content: string
-- Your **interactions** data is imported as [DataFrame](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html) object and consists of, in no particular order:
+- **interactions** data is imported as [DataFrame](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html) object and consists of:
   - user_id: int [[index]](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.set_index.html)
   - article_id: int
   - weight: int
@@ -23,27 +21,33 @@ If you wish to use this, please make sure that:
 ### From PyPI
 TBD
 
-### From cloned repository (local src)
+### Local
+1. Clone or download this repository. If you prefer to download, make sure to extract it.
+2. Open your terminal and prepare your Python 3.9+ virtual environment  
+3. Install the package using:
 ```shell
-$ pip install -e <path-to-cloned-repo-dir>
+$ pip install -e /path/to/cloned/repository
 ```
 
 ## Usage Example
+### Generate Recommendation
 ```python
 import pandas
 from rscb import RecommenderEngine
 from rscb.algorithms import Tfidf
 
-# Load articles and interactions data as DataFrame object
+# First, load your processed articles and interactions data 
+# as DataFrame objects
 articles = pandas.read_json('articles.json')
 interactions_train = pandas.read_json('interactions_train.json')
 
-# Instantiate the engine with your data, set the algorithm 
-# and begin the training
+# Then, prepare the engine by feeding your data 
+# and algorithm of your choice.
 engine = RecommenderEngine(articles, interactions_train) \
     .set_algorithm(Tfidf) \
     .train()
 
+# The recommender engine is now ready to use!
 while True:
     # Ask for User ID
     user_id = int(input('User ID: '))
@@ -65,25 +69,36 @@ while True:
         [16, 0.2174022565527912]
     ]
     """
+```
+### Swapping Data or Algorithm
+```python
 
-    # If you wish, you could swap the data at this point:
-    # engine.set_articles(other_articles)
-    # engine.set_interactions(other_interactions)
-    #
-    # ... or even swap the algorithm:
-    # engine.set_algorithm(OtherAlgorithm)
-    # 
-    # ... then re-train the engine with your new data and/or algorithm:
-    # engine.train()
-    #
+    # If you wish, you could swap the data
+    # while the code is running (runtime)
+    engine.set_articles(other_articles)
+    engine.set_interactions(other_interactions)
+
+    # you could even swap the algorithm:
+    engine.set_algorithm(OtherAlgorithm)
+     
+    # then re-train the engine with your new data and/or algorithm:
+    engine.train()
+    
     # on the next iteration, it will use your newly trained engine!
 ```
+### Available Algorithms
+- `Tfidf`: `from rscb.algorithms import Tfidf`
 
 ## Development
+### Manual Environment Setup (Conda)
+```shell
+$ cd /path/to/cloned/repo
+$ conda env create -f environment.yml
+```
 ### Adding New Algorithm
 TBA
 
-### Build the package as distributable
+### Build as Distributable Package
 - On Windows
 ```shell
 $ pip install --upgrade build
