@@ -39,7 +39,7 @@ class RecommenderEngine:
 
         return self
 
-    def get_recommendation(self, user_id: int, top_n: int = 10, exclude: List[int] = None) -> List[List[any]]:
+    def get_recommendation(self, user_id: int, top_n: int = 10, exclude: List[int] = None) -> List[List[any, float]]:
         if self.algorithm is None:
             raise AlgorithmUnsetError
 

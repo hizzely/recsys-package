@@ -1,8 +1,8 @@
+from __future__ import annotations
 import nltk
 import numpy
 import sklearn
 from nltk.corpus import stopwords
-from pandas import DataFrame
 from scipy.sparse import csr_matrix, vstack
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
@@ -17,13 +17,13 @@ class Tfidf(AbstractAlgorithm):
     def __init__(self):
         nltk.download('stopwords')
     
-    def get_recommendation(self, user_id: int) -> List[List[any]]:
-        return self._get_similar_articles(user_id).values.tolist()
+    def get_recommendation(self, user_id: int) -> List[List[any, float]]:
+        return self._get_similar_articles(user_id)
 
     def is_trained(self) -> bool:
         return (self.articles_profiles is not None) and (self.users_profiles is not None)
 
-    def train(self) -> AbstractAlgorithm:
+    def train(self) -> Tfidf:
         self._build_articles_profiles()
         self._build_users_profiles()
 
@@ -40,7 +40,7 @@ class Tfidf(AbstractAlgorithm):
             corpus.append(document)
 
         # Convert the corpus (collection of raw documents) to a matrix of TF-IDF features
-        vectorizer: TfidfVectorizer = TfidfVectorizer(
+        vectorizer = TfidfVectorizer(
             analyzer='word',
             stop_words=stopwords.words('indonesian') + stopwords.words('english'),
             ngram_range=(1, 2),
@@ -76,7 +76,7 @@ class Tfidf(AbstractAlgorithm):
 
             self.users_profiles[user_id] = profile
 
-    def _get_similar_articles(self, user_id) -> DataFrame:
+    def _get_similar_articles(self, user_id) -> List[List[any, float]]:
         # get the similarity between this user profile and our articles profiles
         cosine_similarities: numpy.ndarray = cosine_similarity(
             self.users_profiles[user_id],
@@ -87,11 +87,6 @@ class Tfidf(AbstractAlgorithm):
         similar_indices = cosine_similarities.argsort().flatten()[::-1]
 
         # list of article id and it's similarity value
-        similar_articles = [(self.articles['id'][i], cosine_similarities[0, i]) for i in similar_indices]
-
-        # transform the list into dataframe then sort by
-        # its similarity value in descending order
-        similar_articles = DataFrame(similar_articles, columns=['article_id', 'strength']) \
-            .sort_values(by=['strength'], ascending=False, ignore_index=True)
+        similar_articles = [[int(self.articles['id'][i]), float(cosine_similarities[0, i])] for i in similar_indices]
 
         return similar_articles

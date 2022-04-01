@@ -9,7 +9,7 @@ class AbstractAlgorithm(ABC):
     interactions: DataFrame
 
     @abstractmethod
-    def get_recommendation(self, user_id: int) -> List[List[any]]:
+    def get_recommendation(self, user_id: int) -> List[List[any, float]]:
         raise NotImplementedError
 
     @abstractmethod
