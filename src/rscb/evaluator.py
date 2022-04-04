@@ -11,23 +11,25 @@ def recall(interactions: DataFrame,
     """Perform evaluation using Recall metric"""
     result = []
 
-    # for each user id in test set
+    # for each user id in test set...
+    # *also handle edge case where pandas will treat single row data as series instead of dataframe
+    # https://stackoverflow.com/q/16782323
     for user_id in interaction_test.index.unique().values:
         # get top-N recommendation for this user
         # but exclude article ids that belong to train set
-        exclude_list = list(set(interaction_train.loc[user_id]['article_id']))
+        exclude_list = list(set(interaction_train.loc[[user_id]]['article_id']))
         recommendation_result = trained_engine.get_recommendation(user_id, top_n=10, exclude=exclude_list)
 
         top_5_hits = 0
         top_10_hits = 0
 
         # get article ids from test set
-        article_ids_test = set(interaction_test.loc[user_id]['article_id'])
+        article_ids_test = set(interaction_test.loc[[user_id]]['article_id'])
 
         # get random sample of not interacted articles
-        all_interacted_items = set(interactions.loc[user_id]['article_id'])
+        all_interacted_items = set(interactions.loc[[user_id]]['article_id'])
         not_interacted_items = set(interactions['article_id']) - all_interacted_items
-        article_samples: set = set(random.sample(not_interacted_items, 5))  # 5 random articles
+        article_samples = set(random.sample(not_interacted_items, 5))  # 5 random articles
 
         # combine the samples with articles from test set
         find_articles = article_samples.union(article_ids_test)
