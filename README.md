@@ -95,8 +95,70 @@ $ cd /path/to/cloned/repo
 $ conda env create -f environment.yml
 ```
 ### Adding New Algorithm
-TBA
+1. Create a new class in `src/rscb/algorithms` using `snake_case` style for file name and `PascalCase` style for class name.
+```shell
+$ touch ./src/rscb/algorithms/your_algorithm.py
+```
+2. Extend the `AbstractAlgorithm` class and implements the abstract methods.
+```python
+from __future__ import annotations
+from typing import List
+from . import AbstractAlgorithm
 
+class YourAlgorithm(AbstractAlgorithm):
+    # Here, you have access to the "articles" and "interactions" 
+    # DataFrame properties within parent class.
+    
+    def get_recommendation(self, user_id: int) -> List[List[any, float]]:
+        # put code that generates recommendation here 
+        return [[1, 0.91211]]
+
+    def is_trained(self) -> bool:
+        # put code that checks whether your algorithm
+        # is ready to generate recommendation here
+        return False
+
+    def train(self) -> YourAlgorithm:
+        # put code that prepares your algorithm here 
+        return self
+```
+3. Optional: Override the DataFrame input setter methods  
+If for some reason you need to handle the `articles` and `interactions` DataFrame input by yourself, you can override the methods like so:
+```python
+...
+from pandas import DataFrame
+
+class YourAlgorithm(AbstractAlgorithm):
+    ...
+    def set_articles(self, articles: DataFrame) -> YourAlgorithm:
+        # put your handling code here
+        # self.articles = articles
+        return self
+
+    def set_interactions(self, interactions: DataFrame) -> YourAlgorithm:
+        # put your handling code here
+        # self.interactions = interactions
+        return self
+```
+4. Pretty Import  
+In order for the consumer to be able to directly import the class instead of module (file) and then the actual class, you have to import the class within the `./src/rscb/algorithms/__init__.py` file. For example:
+```python
+...
+from .your_algorithm import YourAlgorithm
+```
+5. Your new algorithm is now ready for prime time!
+```python
+...
+from rscb import RecommenderEngine
+from rscb.algorithms import YourAlgorithm
+
+...
+engine = RecommenderEngine(articles, interactions_train) \
+    .set_algorithm(YourAlgorithm) \
+    .train()
+...
+```
+6. If you would like to contribute back, please document your new algorithm in the `README.md` and send a pull request!
 ### Get Articles From Medium RSS Feed
 ```python
 from rscb.kabarinformatika.medium import get_articles
