@@ -72,19 +72,18 @@ while True:
 ```
 ### Swapping Data or Algorithm
 ```python
+# If you wish, you could swap the data
+# while the code is running (runtime)
+engine.set_articles(other_articles)
+engine.set_interactions(other_interactions)
 
-    # If you wish, you could swap the data
-    # while the code is running (runtime)
-    engine.set_articles(other_articles)
-    engine.set_interactions(other_interactions)
+# you could even swap the algorithm:
+engine.set_algorithm(OtherAlgorithm)
 
-    # you could even swap the algorithm:
-    engine.set_algorithm(OtherAlgorithm)
-     
-    # then re-train the engine with your new data and/or algorithm:
-    engine.train()
-    
-    # on the next iteration, it will use your newly trained engine!
+# then re-train the engine with your new data and/or algorithm:
+engine.train()
+
+# on the next iteration, it will use your newly trained engine!
 ```
 ### Available Algorithms
 - `Tfidf`: `from rscb.algorithms import Tfidf`
@@ -97,6 +96,37 @@ $ conda env create -f environment.yml
 ```
 ### Adding New Algorithm
 TBA
+
+### Get Articles From Medium RSS Feed
+```python
+from rscb.kabarinformatika.medium import get_articles
+from rscb.helper import save_dict_as_json
+
+articles: list[dict] = get_articles([
+    'https://medium.com/feed/kabarinformatika/tagged/software-engineering',
+    'https://medium.com/feed/kabarinformatika/tagged/startup',
+])
+
+save_dict_as_json(articles, "articles.json")
+```
+
+### Interaction Seeding
+```python
+from rscb.kabarinformatika.seeder import generate_interactions
+from rscb.helper import save_dict_as_json
+
+# load or get the articles
+articles: list[dict] = get_articles([...])
+
+# get article ids
+article_ids: list[int] = [item['id'] for item in articles]
+
+# generate random interactions for 100 users
+interactions = generate_interactions(article_ids, 100)
+
+save_dict_as_json(interactions, "interactions.json")
+```
+
 
 ### Build as Distributable Package
 - On Windows
