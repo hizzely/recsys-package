@@ -100,20 +100,20 @@ TBA
 ### Get Articles From Medium RSS Feed
 ```python
 from rscb.kabarinformatika.medium import get_articles
-from rscb.helper import save_dict_as_json
+from rscb.helper import save_as_json
 
 articles: list[dict] = get_articles([
     'https://medium.com/feed/kabarinformatika/tagged/software-engineering',
     'https://medium.com/feed/kabarinformatika/tagged/startup',
 ])
 
-save_dict_as_json(articles, "articles.json")
+save_as_json(articles, "articles.json")
 ```
 
 ### Interaction Seeding
 ```python
 from rscb.kabarinformatika.seeder import generate_interactions
-from rscb.helper import save_dict_as_json
+from rscb.helper import save_as_json
 
 # load or get the articles
 articles: list[dict] = get_articles([...])
@@ -124,7 +124,7 @@ article_ids: list[int] = [item['id'] for item in articles]
 # generate random interactions for 100 users
 interactions = generate_interactions(article_ids, 100)
 
-save_dict_as_json(interactions, "interactions.json")
+save_as_json(interactions, "interactions.json")
 ```
 
 
