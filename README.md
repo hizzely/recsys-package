@@ -7,11 +7,8 @@ The only requirements is Python >= 3.9. You can make use of Python Virtual Envir
 ### Data Structure
 This package currently requires you to structure your data as follows:
 - **articles** data is imported as [DataFrame](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html) object and consists of:
-  - id: int [[index]](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.set_index.html)
-  - title: string
-  - author: string
-  - categories: list[string]
-  - content: string
+  - [0]: id: int [[index]](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.set_index.html)
+  - [1]: feature: string
 - **interactions** data is imported as [DataFrame](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html) object and consists of:
   - user_id: int [[index]](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.set_index.html)
   - article_id: int
@@ -30,6 +27,37 @@ $ pip install -e /path/to/cloned/repository
 ```
 
 ## Usage Example
+### Dataset Seeding
+If you don't have your own dataset in hand and just want to get started quickly, this code will help you by grabbing Kabar Informatika's articles on Medium, generate random interactions data and then do some processing. It's basically acts like the missing layers below the Recommender Engine.
+```python
+from pandas import DataFrame
+from rscb.helper import save_as_json
+from rscb.kabarinformatika import medium, processing, seeder
+
+# Grab articles from Medium
+articles: list[dict] = medium.get_articles([
+    'https://medium.com/feed/kabarinformatika/tagged/software-engineering',
+    'https://medium.com/feed/kabarinformatika/tagged/startup',
+    'https://medium.com/feed/kabarinformatika/tagged/Artificial%20Intelligence',
+    'https://medium.com/feed/kabarinformatika/tagged/multimedia',
+    'https://medium.com/feed/kabarinformatika/tagged/lessons%20learned'
+])
+
+# Generate 20 users random interactions
+article_ids = [article['id'] for article in articles]
+interactions: list[dict] = seeder.generate_interactions(article_ids, 20)
+
+# Perform some preprocessing
+articles: DataFrame = processing.prepare_articles(articles)
+interactions: DataFrame = processing.prepare_interactions(interactions)
+
+# Export the result, so we can reuse them 
+# without repeating the process 
+save_as_json(articles.to_dict(), 'articles.json')
+save_as_json(interactions.to_dict(), 'interactions.json')
+```
+Your datasets are now ready, you can remove the code above and follow the example below.
+
 ### Generate Recommendation
 ```python
 import pandas
@@ -39,7 +67,7 @@ from rscb.algorithms import Tfidf
 # First, load your processed articles and interactions data 
 # as DataFrame objects
 articles = pandas.read_json('articles.json')
-interactions_train = pandas.read_json('interactions_train.json')
+interactions_train = pandas.read_json('interactions.json')
 
 # Then, prepare the engine by feeding your data 
 # and algorithm of your choice.
@@ -187,37 +215,6 @@ interactions = generate_interactions(article_ids, 100)
 
 save_as_json(interactions, "interactions.json")
 ```
-### Complete Quickstart
-If you just want a quick start without dataset preparation, run this code to quickly grab Kabar Informatika's articles on Medium, generate random interactions data, and then process them so you can just feed them directly to the engine. It's basically acts like the missing layer below the Recommender Engine.
-```python
-from pandas import DataFrame
-from rscb.helpr import save_as_json
-from rscb.kabarinformatika import medium, processing, seeder
-
-# Grab articles from Medium
-articles: list[dict] = medium.get_articles([
-    'https://medium.com/feed/kabarinformatika/tagged/software-engineering',
-    'https://medium.com/feed/kabarinformatika/tagged/startup',
-    'https://medium.com/feed/kabarinformatika/tagged/Artificial%20Intelligence',
-    'https://medium.com/feed/kabarinformatika/tagged/multimedia',
-    'https://medium.com/feed/kabarinformatika/tagged/lessons%20learned'
-])
-
-# Generate 20 users random interactions
-article_ids = [article['id'] for article in articles]
-interactions: list[dict] = seeder.generate_interactions(article_ids, 20)
-
-# Perform some preprocessing
-articles: DataFrame = processing.prepare_articles(articles)
-interactions: DataFrame = processing.prepare_interactions(interactions)
-
-# Export the result, so we can reuse them 
-# without repeating the process 
-save_as_json(articles.to_dict(), 'articles.json')
-save_as_json(interactions.to_dict(), 'interactions20.json')
-```
-Your datasets are now ready, you can remove the code above and follow the main example to start.
-
 ### Build as Distributable Package
 - On Windows
 ```shell
