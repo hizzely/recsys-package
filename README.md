@@ -7,13 +7,20 @@ The only requirements is Python >= 3.9. You can make use of Python Virtual Envir
 ### Data Structure
 This package currently requires you to structure your data as follows:
 - **articles** data is imported as [DataFrame](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html) object and consists of:
-  - [0]: id: int [[index]](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.set_index.html)
-  - [1]: feature: string
+
+| Column | Type        | Description                   |
+|--------|-------------|-------------------------------|
+| 0      | `int` `str` | Article ID                    |
+| 1      | `str`       | Concatenated article features |
+
 - **interactions** data is imported as [DataFrame](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html) object and consists of:
-  - user_id: int [[index]](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.set_index.html)
-  - article_id: int
-  - weight: int
   
+| Column     | Type        | Description                |
+|------------|-------------|----------------------------|
+| user_id    | `int`       | User ID                    |
+| article_id | `int` `str` | Article ID                 |
+| weight     | `float`     | Average interaction weight |
+
 ## Installation
 ### From PyPI
 TBD
