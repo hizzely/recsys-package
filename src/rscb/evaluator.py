@@ -9,6 +9,9 @@ def recall(interactions: DataFrame,
            interaction_test: DataFrame,
            trained_engine: RecommenderEngine) -> DataFrame:
     """Perform evaluation using Recall metric"""
+    interactions = interactions.set_index('user_id')
+    interaction_train = interaction_train.set_index('user_id')
+    interaction_test = interaction_test.set_index('user_id')
     result = []
 
     # for each user id in test set...

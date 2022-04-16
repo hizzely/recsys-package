@@ -29,5 +29,4 @@ def prepare_interactions(interactions: list[dict]) -> DataFrame:
     return DataFrame(interactions) \
         .groupby(['user_id', 'article_id'])['weight'].sum() \
         .apply(lambda x: math.log(1 + x, 2)) \
-        .reset_index() \
-        .set_index('user_id')
+        .reset_index()

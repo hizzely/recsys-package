@@ -11,8 +11,8 @@ from . import AbstractAlgorithm
 
 
 class Tfidf(AbstractAlgorithm):
-    articles_profiles: csr_matrix = None
-    users_profiles: dict = None
+    articles_profiles: csr_matrix
+    users_profiles: dict
 
     def __init__(self):
         nltk.download('stopwords')
@@ -30,15 +30,6 @@ class Tfidf(AbstractAlgorithm):
         return self
     
     def _build_articles_profiles(self):
-        # Build the corpus
-        corpus = []
-
-        for i in range(len(self.articles)):
-            article = self.articles.loc[i]
-            document = f"{article['title']} {article['content']} {article['author']} "
-            document += ' '.join(article['categories'])
-            corpus.append(document)
-
         # Convert the corpus (collection of raw documents) to a matrix of TF-IDF features
         vectorizer = TfidfVectorizer(
             analyzer='word',
@@ -47,7 +38,7 @@ class Tfidf(AbstractAlgorithm):
             max_features=10000  # limit to 10k features, or terms, from the most frequent term
         )
 
-        self.articles_profiles = vectorizer.fit_transform(corpus)
+        self.articles_profiles = vectorizer.fit_transform(self.articles[1].values)
 
     def _build_users_profiles(self):
         self.users_profiles = {}
@@ -58,7 +49,7 @@ class Tfidf(AbstractAlgorithm):
             interacted_articles_profiles = []
 
             for article_id in set(interaction['article_id']):
-                article_index = self.articles[self.articles['id'] == article_id].index.values[0]
+                article_index = self.articles[self.articles[0] == article_id].index.values[0]
                 interacted_articles_profiles.append(self.articles_profiles[article_index])
 
             interacted_articles_profiles = vstack(interacted_articles_profiles)
@@ -87,6 +78,6 @@ class Tfidf(AbstractAlgorithm):
         similar_indices = cosine_similarities.argsort().flatten()[::-1]
 
         # list of article id and it's similarity value
-        similar_articles = [[int(self.articles['id'][i]), float(cosine_similarities[0, i])] for i in similar_indices]
+        similar_articles = [[int(self.articles[0][i]), float(cosine_similarities[0, i])] for i in similar_indices]
 
         return similar_articles

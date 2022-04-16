@@ -25,5 +25,5 @@ class AbstractAlgorithm(ABC):
         return self
 
     def set_interactions(self, interactions: DataFrame) -> AbstractAlgorithm:
-        self.interactions = interactions
+        self.interactions = interactions.set_index('user_id')
         return self
