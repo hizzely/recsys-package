@@ -194,34 +194,6 @@ engine = RecommenderEngine(articles, interactions_train) \
 ...
 ```
 6. If you would like to contribute back, please document your new algorithm in the `README.md` and send a pull request!
-### Get Articles From Medium RSS Feed
-```python
-from rscb.kabarinformatika.medium import get_articles
-from rscb.helper import save_as_json
-
-articles: list[dict] = get_articles([
-    'https://medium.com/feed/kabarinformatika/tagged/software-engineering',
-    'https://medium.com/feed/kabarinformatika/tagged/startup',
-])
-
-save_as_json(articles, "articles.json")
-```
-### Interaction Seeding
-```python
-from rscb.kabarinformatika.seeder import generate_interactions
-from rscb.helper import save_as_json
-
-# load or get the articles
-articles: list[dict] = get_articles([...])
-
-# get article ids
-article_ids: list[int] = [item['id'] for item in articles]
-
-# generate random interactions for 100 users
-interactions = generate_interactions(article_ids, 100)
-
-save_as_json(interactions, "interactions.json")
-```
 ### Build as Distributable Package
 - On Windows
 ```shell
